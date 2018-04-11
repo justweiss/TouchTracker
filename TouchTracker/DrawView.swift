@@ -10,13 +10,29 @@ import UIKit
 
 class DrawView: UIView {
     
-    //var currentLine: Line?
     var currentLines = [NSValue:Line]()
     var finishedLines = [Line]()
     
+    @IBInspectable var finishedLineColor: UIColor = UIColor.black {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    @IBInspectable var currentLineColor: UIColor = UIColor.red {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    @IBInspectable var lineThickness: CGFloat = 10 {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
     func stroke(_ line: Line) {
         let path = UIBezierPath()
-        path.lineWidth = 10
+        //path.lineWidth = 10
+        path.lineWidth = lineThickness
         path.lineCapStyle = .round
         
         path.move(to: line.begin)
@@ -26,7 +42,8 @@ class DrawView: UIView {
     
     override func draw(_ rect: CGRect) {
         //Draw finished lines in black
-        UIColor.black.setStroke()
+        //UIColor.black.setStroke()
+        finishedLineColor.setStroke()
         for line in finishedLines {
             stroke(line)
         }
@@ -38,7 +55,8 @@ class DrawView: UIView {
         //}
         
         //Draw current lines in red
-        UIColor.red.setStroke()
+        //UIColor.red.setStroke()
+        currentLineColor.setStroke()
         for (_, line) in currentLines {
             stroke(line)
         }
@@ -105,6 +123,15 @@ class DrawView: UIView {
                 currentLines.removeValue(forKey: key)
             }
         }
+        
+        setNeedsDisplay()
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        //Log statement to see the order of events
+        print(#function)
+        
+        currentLines.removeAll()
         
         setNeedsDisplay()
     }
