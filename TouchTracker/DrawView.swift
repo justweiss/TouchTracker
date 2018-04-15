@@ -29,6 +29,16 @@ class DrawView: UIView {
         }
     }
     
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        
+        let doubleTapRecognizer = UITapGestureRecognizer(target: self,
+                                                         action: #selector(DrawView.doubleTap(_:)))
+        doubleTapRecognizer.numberOfTapsRequired = 2
+        doubleTapRecognizer.delaysTouchesBegan = true
+        addGestureRecognizer(doubleTapRecognizer)
+    }
+    
     func stroke(_ line: Line) {
         let path = UIBezierPath()
         //path.lineWidth = 10
@@ -40,22 +50,21 @@ class DrawView: UIView {
         path.stroke()
     }
     
+    @objc func doubleTap (_ gestureRecognizer: UITapGestureRecognizer) {
+        print("Recognized a double tap")
+        
+        currentLines.removeAll()
+        finishedLines.removeAll()
+        setNeedsDisplay()
+    }
+    
     override func draw(_ rect: CGRect) {
         //Draw finished lines in black
-        //UIColor.black.setStroke()
         finishedLineColor.setStroke()
         for line in finishedLines {
             stroke(line)
         }
         
-        //if let line = currentLine {
-            //If there is a line currently being drawn, do it in red
-            //UIColor.red.setStroke()
-            //stroke(line)
-        //}
-        
-        //Draw current lines in red
-        //UIColor.red.setStroke()
         currentLineColor.setStroke()
         for (_, line) in currentLines {
             stroke(line)
@@ -63,16 +72,12 @@ class DrawView: UIView {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        //let touch = touches.first!
-        
-        //Get location of the touch in view's coordinate system
-        //let location = touch.location(in: self)
-        //currentLine = Line(begin: location, end: location)
         
         //Log statement to see the order of events
         print(#function)
         
         for touch in touches {
+            //Get location of the touch in view's coordinate system
             let location = touch.location(in: self)
             
             let newLine = Line(begin: location, end: location)
@@ -84,11 +89,7 @@ class DrawView: UIView {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        //let touch = touches.first!
-        //let location = touch.location(in: self)
-        
-        //currentLine?.end = location
-        
+
         //Log statement to see the order of events
         print(#function)
         
@@ -101,16 +102,7 @@ class DrawView: UIView {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        //if var line = currentLine {
-            //let touch = touches.first!
-            //let location = touch.location(in: self)
-            //line.end = location
-            
-            //finishedLines.append(line)
-        //}
-        
-        //currentLine = nil
-        
+
         //Log statement to see the order of events
         print(#function)
         
