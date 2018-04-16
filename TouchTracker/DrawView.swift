@@ -42,8 +42,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
-        let doubleTapRecognizer = UITapGestureRecognizer(target: self,
-                                                         action: #selector(DrawView.doubleTap(_:)))
+        let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(DrawView.doubleTap(_:)))
         doubleTapRecognizer.numberOfTapsRequired = 2
         doubleTapRecognizer.delaysTouchesBegan = true
         addGestureRecognizer(doubleTapRecognizer)
@@ -194,9 +193,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         }
     }
     
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-                              shouldRecognizeSimultaneouslyWith
-        otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
     
@@ -204,11 +201,14 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         //Draw finished lines in black
         finishedLineColor.setStroke()
         for line in finishedLines {
+            //UIColor.brown.setStroke()
+            line.color.setStroke()
             stroke(line)
         }
         
         currentLineColor.setStroke()
         for (_, line) in currentLines {
+            line.color.setStroke()
             stroke(line)
         }
         

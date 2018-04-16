@@ -16,6 +16,7 @@
 		77F27992207E75B2004F4E1B /* TouchTrackerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77F27991207E75B2004F4E1B /* TouchTrackerUITests.swift */; };
 		77F279A0207E75F6004F4E1B /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77F2799F207E75F6004F4E1B /* Line.swift */; };
 		77F279A2207E7686004F4E1B /* DrawView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77F279A1207E7686004F4E1B /* DrawView.swift */; };
+		77F279A420854596004F4E1B /* Circles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77F279A320854596004F4E1B /* Circles.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		77F27993207E75B2004F4E1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		77F2799F207E75F6004F4E1B /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		77F279A1207E7686004F4E1B /* DrawView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawView.swift; sourceTree = "<group>"; };
+		77F279A320854596004F4E1B /* Circles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Circles.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +106,7 @@
 				77F27971207E75B2004F4E1B /* AppDelegate.swift */,
 				77F27973207E75B2004F4E1B /* ViewController.swift */,
 				77F2799F207E75F6004F4E1B /* Line.swift */,
+				77F279A320854596004F4E1B /* Circles.swift */,
 				77F279A1207E7686004F4E1B /* DrawView.swift */,
 				77F27975207E75B2004F4E1B /* Main.storyboard */,
 				77F27978207E75B2004F4E1B /* Assets.xcassets */,
@@ -269,6 +272,7 @@
 				77F27974207E75B2004F4E1B /* ViewController.swift in Sources */,
 				77F279A2207E7686004F4E1B /* DrawView.swift in Sources */,
 				77F27972207E75B2004F4E1B /* AppDelegate.swift in Sources */,
+				77F279A420854596004F4E1B /* Circles.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
