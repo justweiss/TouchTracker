@@ -55,7 +55,6 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         tapRecognizer.require(toFail: doubleTapRecognizer)
         addGestureRecognizer(tapRecognizer)
         
-        //let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(DrawView.longPress(_:)))
         longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(DrawView.longPress(_:)))
         addGestureRecognizer(longPressRecognizer)
         
@@ -75,6 +74,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         path.stroke()
     }
     
+    //Function for to create circle
     func strokeCircle(_ circle: Circle) {
         let path = UIBezierPath(arcCenter: circle.center, radius: circle.radius, startAngle: 0, endAngle: CGFloat(2 * Double.pi), clockwise: true)
         path.lineWidth = 10
@@ -172,9 +172,6 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     @objc func moveLine(_ gestureRecognizer: UIPanGestureRecognizer) {
         print("Recognized a pan")
         
-        //guard longPressRecognizer.state == .changed || longPressRecognizer.state == .ended //else {
-          //  return
-        //}
         if let index = selectedLineIndex, index != indexOfLine(at: gestureRecognizer.location(in: self)) {
             if gestureRecognizer.state == .began {
                 selectedLineIndex = nil
@@ -246,6 +243,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         //Log statement to see the order of events
         print(#function)
         
+        //If 2 touches then puts in a circle
         if touches.count == 2 {
             let touchesArray = Array(touches)
             let begin = touchesArray[0].location(in: self)
@@ -257,6 +255,8 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
             let newCircle = Circle(center: center, radius: radius)
             currentCircle = newCircle
         } else {
+            
+            //for lines
             for touch in touches {
                 let location = touch.location(in: self)
                 let newLine = Line(begin: location, end: location, thickness: nil, color: nil)
@@ -274,6 +274,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         //Log statement to see the order of events
         print(#function)
         
+        //For circles
         if touches.count == 2 {
             let touchesArray = Array(touches)
             let begin = touchesArray[0].location(in: self)
@@ -297,6 +298,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         //Log statement to see the order of events
         print(#function)
         
+        //Creates circles
         if touches.count == 2 {
             if var circle = currentCircle {
                 let touchesArray = Array(touches)
@@ -312,6 +314,8 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         } else {
             for touch in touches {
                 let key = NSValue(nonretainedObject: touch)
+                
+                //Addes color to lines based off the angle
                 if var line = currentLines[key] {
                     line.end = touch.location(in: self)
                     line.thickness = lineThickness
