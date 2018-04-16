@@ -23,6 +23,9 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     var moveRecognizer: UIPanGestureRecognizer!
     var longPressRecognizer: UILongPressGestureRecognizer!
     
+    var currentCircle: Circle?
+    var finishedCircles = [Circle]()
+    
     @IBInspectable var finishedLineColor: UIColor = UIColor.black {
         didSet {
             setNeedsDisplay()
@@ -64,12 +67,17 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     
     func stroke(_ line: Line) {
         let path = UIBezierPath()
-        //path.lineWidth = 10
-        path.lineWidth = lineThickness
+        path.lineWidth = line.thickness ?? lineThickness
         path.lineCapStyle = .round
         
         path.move(to: line.begin)
         path.addLine(to: line.end)
+        path.stroke()
+    }
+    
+    func strokeCircle(_ circle: Circle) {
+        let path = UIBezierPath(arcCenter: circle.center, radius: circle.radius, startAngle: 0, endAngle: CGFloat(2 * Double.pi), clockwise: true)
+        path.lineWidth = 10
         path.stroke()
     }
     
@@ -164,8 +172,13 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     @objc func moveLine(_ gestureRecognizer: UIPanGestureRecognizer) {
         print("Recognized a pan")
         
-        guard longPressRecognizer.state == .changed || longPressRecognizer.state == .ended else {
-            return
+        //guard longPressRecognizer.state == .changed || longPressRecognizer.state == .ended //else {
+          //  return
+        //}
+        if let index = selectedLineIndex, index != indexOfLine(at: gestureRecognizer.location(in: self)) {
+            if gestureRecognizer.state == .began {
+                selectedLineIndex = nil
+            }
         }
         
         //If line is selected...
@@ -189,6 +202,9 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
             }
         } else {
             // If no line is selected, do not do anything
+            let velocity = gestureRecognizer.velocity(in: self)
+            let speed = hypot(abs(velocity.x), abs(velocity.y))
+            lineThickness = sqrt(speed)
             return
         }
     }
@@ -199,16 +215,18 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     
     override func draw(_ rect: CGRect) {
         //Draw finished lines in black
-        finishedLineColor.setStroke()
         for line in finishedLines {
-            //UIColor.brown.setStroke()
-            line.color.setStroke()
+            line.color?.setStroke()
             stroke(line)
+        }
+        
+        finishedLineColor.setStroke()
+        for circle in finishedCircles {
+            strokeCircle(circle)
         }
         
         currentLineColor.setStroke()
         for (_, line) in currentLines {
-            line.color.setStroke()
             stroke(line)
         }
         
@@ -217,6 +235,10 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
             let selectedLine = finishedLines[index]
             stroke(selectedLine)
         }
+        
+        if let circle = currentCircle {
+            strokeCircle(circle)
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -224,13 +246,24 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         //Log statement to see the order of events
         print(#function)
         
-        for touch in touches {
-            //Get location of the touch in view's coordinate system
-            let location = touch.location(in: self)
+        if touches.count == 2 {
+            let touchesArray = Array(touches)
+            let begin = touchesArray[0].location(in: self)
+            let end = touchesArray[1].location(in: self)
             
-            let newLine = Line(begin: location, end: location)
-            let key = NSValue(nonretainedObject: touch)
-            currentLines[key] = newLine
+            let center = CGPoint(x: (begin.x + end.x) / 2, y: (begin.y + end.y) / 2)
+            let radius = hypot(abs(begin.x - end.x), abs(begin.y - end.y))
+            
+            let newCircle = Circle(center: center, radius: radius)
+            currentCircle = newCircle
+        } else {
+            for touch in touches {
+                let location = touch.location(in: self)
+                let newLine = Line(begin: location, end: location, thickness: nil, color: nil)
+                let key = NSValue(nonretainedObject: touch)
+                
+                currentLines[key] = newLine
+            }
         }
         
         setNeedsDisplay()
@@ -241,9 +274,19 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         //Log statement to see the order of events
         print(#function)
         
-        for touch in touches {
-            let key = NSValue(nonretainedObject: touch)
-            currentLines[key]?.end = touch.location(in: self)
+        if touches.count == 2 {
+            let touchesArray = Array(touches)
+            let begin = touchesArray[0].location(in: self)
+            let end = touchesArray[1].location(in: self)
+            
+            let radius = hypot(abs(begin.x - end.x), abs(begin.y - end.y))
+            
+            currentCircle?.radius = radius
+        } else {
+            for touch in touches {
+                let key = NSValue(nonretainedObject: touch)
+                currentLines[key]?.end = touch.location(in: self)
+            }
         }
         
         setNeedsDisplay()
@@ -254,13 +297,37 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         //Log statement to see the order of events
         print(#function)
         
-        for touch in touches {
-            let key = NSValue(nonretainedObject: touch)
-            if var line = currentLines[key] {
-                line.end = touch.location(in: self)
+        if touches.count == 2 {
+            if var circle = currentCircle {
+                let touchesArray = Array(touches)
+                let begin = touchesArray[0].location(in: self)
+                let end = touchesArray[1].location(in: self)
                 
-                finishedLines.append(line)
-                currentLines.removeValue(forKey: key)
+                let radius = hypot(abs(begin.x - end.x), abs(begin.y - end.y))
+                circle.radius = radius
+                
+                finishedCircles.append(circle)
+                currentCircle = nil
+            }
+        } else {
+            for touch in touches {
+                let key = NSValue(nonretainedObject: touch)
+                if var line = currentLines[key] {
+                    line.end = touch.location(in: self)
+                    line.thickness = lineThickness
+                    
+                    let radians = atan2(abs(line.end.y - line.begin.y),
+                                            abs(line.end.x - line.begin.x))
+                    let degrees = radians * 180 / CGFloat(Double.pi)
+                     
+                    line.color = UIColor(red: degrees / 45,
+                                             green: degrees / 90,
+                                             blue: 1 - degrees / 135,
+                                             alpha: 1.0)
+                    
+                    finishedLines.append(line)
+                    currentLines.removeValue(forKey: key)
+                }
             }
         }
         
@@ -272,6 +339,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         print(#function)
         
         currentLines.removeAll()
+        currentCircle = nil
         
         setNeedsDisplay()
     }
